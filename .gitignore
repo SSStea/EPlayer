@@ -59,3 +59,13 @@ Desktop.ini
 *.temp
 *.swp
 *.swo
+ServerLinux/readme/readme.html
+ServerLinux/readme/stylesheet.css
+ServerLinux/readme/images/ArchOptions.gif
+ServerLinux/readme/images/ChangeRemote.gif
+ServerLinux/readme/images/debuggerexport.png
+ServerLinux/readme/images/firstconnection.png
+ServerLinux/readme/images/linker.png
+ServerLinux/readme/images/ManageConnections.gif
+ServerLinux/readme/images/OutputTypes.gif
+ServerLinux/readme/images/postbuild.png
