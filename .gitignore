@@ -1,0 +1,61 @@
+# Visual Studio workspace state
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.slnLaunch.user
+
+# Visual C++ generated files
+*.aps
+*.ipch
+*.iobj
+*.ipdb
+*.ilk
+*.log
+*.obj
+*.pch
+*.pdb
+*.tlog
+*.lastbuildstate
+*.recipe
+*.idb
+*.res
+*.rsuser
+
+# Build output directories
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Bb]in/
+[Oo]bj/
+out/
+
+# Executables and libraries produced by builds
+*.exe
+*.dll
+*.lib
+*.exp
+*.app
+
+# Test and coverage output
+TestResults/
+*.coverage
+*.coveragexml
+
+# Package/cache folders
+packages/
+*.nupkg
+
+# Windows and editor noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.tmp
+*.temp
+*.swp
+*.swo
