@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -293,6 +294,44 @@ public:
         return 0;
     }
 
+    static int SwitchDeamon()//切换到守护进程
+    {
+        pid_t ret = fork();
+        if (ret == -1)
+        {
+            return -1;
+        }
+        if (ret > 0)
+        {
+            exit(0); //主进程退出
+        }
+
+        //子进程工作如下
+        ret = setsid();
+        if (ret == -1)
+        {
+            return -2;
+        }
+        ret = fork();
+        if (ret == -1)
+        {
+            return -3;
+        }
+        if (ret > 0)
+        {
+            exit(0); //子进程退出
+        }
+
+        //孙进程：进入守护状态
+        for (int i = 0; i < 3; i++)
+        {
+            close(i);
+        }
+        umask(0);
+        signal(SIGCHLD, SIG_IGN);
+        return 0;
+    }
+
 private:
     /*
      * 子进程入口函数包装对象。
@@ -348,6 +387,8 @@ int main()
      * - 每个服务进程都有自己的入口函数和 pid。
      * - 分开保存可以独立启动、独立监控。
      */
+    //CProcess::SwitchDeamon();
+
     CProcess procLog, procClients;
 
 	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
