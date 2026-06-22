@@ -1,6 +1,9 @@
 #include <cstdio>
 #include <unistd.h>
+#include <sys/types.h>
 #include <functional>
+#include <memory.h>
+#include <sys/socket.h>
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -30,8 +33,8 @@
 class CFuncBase
 {
 public:
-    CFuncBase();
-    virtual ~CFuncBase();
+    CFuncBase() {}
+    virtual ~CFuncBase() {}
 
     /*
      * 执行真正的入口函数。
@@ -90,6 +93,7 @@ public:
      * - 如果后续只补实现，通常会在构造函数初始化列表里完成绑定。
      */
     CFunction(_FUNCTION_ func, _ARGS_... args)
+        : m_binder(std::forward<_FUNCTION_>(func), std::forward<_ARGS_>(args)...)
     {
 
     }
@@ -123,7 +127,7 @@ public:
      * 这行代码的意图是让 m_binder 保存 std::bind(func, args...) 的结果，
      * 后面 operator() 就可以通过 m_binder() 统一调用入口函数。
      */
-    std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
+    typename std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
 };
 
 /*
@@ -141,6 +145,7 @@ public:
     CProcess()
     {
         m_func = NULL;
+        memset(pipes, 0, sizeof(pipes));
     }
 
     ~CProcess()
@@ -174,7 +179,7 @@ public:
     template<typename _FUNCTION_, typename... _ARGS_>
     int SetEntryFunc(_FUNCTION_ func, _ARGS_... args)
     {
-        m_func = new CFunction(func, args...);
+        m_func = new CFunction<_FUNCTION_, _ARGS_...>(func, args...);
         return 0;
     }
 
@@ -185,19 +190,100 @@ public:
             return -1;
         }
 
+        int nRet = socketpair(AF_LOCAL, SOCK_STREAM, 0, pipes);//本地套接字
+        if (nRet == -1)
+        {
+            return -2;
+        }
+
         pid_t pid = fork();
         if (pid == -1)
         {
-            return -2;
+            return -3;
         }
         else if (pid == 0)
         {
             /* 子进程分支*/
+            close(pipes[1]);//关闭管道的写，这样子进程就有读管道
+            pipes[1] = 0;
             return (*m_func)();
         }
 
+        close(pipes[0]);//关闭管道的读，这样主进程就有写管道
+        pipes[0] = 0;
         /* 父进程分支*/
         m_pid = pid;
+        return 0;
+    }
+
+    int nSendFD(int nFd)//主进程
+    {
+        iovec iov[2];
+        iov[0].iov_base = (char*)"edoyun";
+        iov[0].iov_len = 7;
+		iov[1].iov_base = (char*)"jeuding";
+		iov[1].iov_len = 8;
+
+        cmsghdr* cmsg = new cmsghdr;
+        bzero(cmsg, sizeof(cmsghdr));
+        if (cmsg == NULL)
+        {
+            return -1;
+        }
+        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+        cmsg->cmsg_level = SOL_SOCKET;//套接字级别
+        cmsg->cmsg_type = SCM_RIGHTS;//权限
+        *(int*)CMSG_DATA(cmsg) = nFd;
+
+		struct msghdr msg;
+        msg.msg_iov = iov;
+        msg.msg_iovlen = 2;
+        msg.msg_control = cmsg;
+        msg.msg_controllen = cmsg->cmsg_len;
+
+		ssize_t ret = sendmsg(pipes[1], &msg, 0);
+		delete cmsg;
+        if (ret == -1)
+        {
+            return -2;
+        }
+
+        return 0;
+    }
+
+    int nRecvFd(int& nFd)
+    {
+        iovec iov[2];
+        char buf[][10] = { "", "" };
+        iov[0].iov_base = buf[0];
+        iov[0].iov_len = sizeof(buf[0]);
+		iov[1].iov_base = buf[1];
+		iov[1].iov_len = sizeof(buf[1]);
+
+        cmsghdr* cmsg = new cmsghdr;
+		bzero(cmsg, sizeof(cmsghdr));
+		if (cmsg == NULL)
+		{
+			return -1;
+		}
+        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+		cmsg->cmsg_level = SOL_SOCKET;//套接字级别
+		cmsg->cmsg_type = SCM_RIGHTS;//权限
+
+		msghdr msg;
+        msg.msg_iov = iov;
+        msg.msg_iovlen = 2;
+        msg.msg_control = cmsg;
+        msg.msg_controllen = cmsg->cmsg_len;
+
+        ssize_t ret = recvmsg(pipes[0], &msg, 0);
+        if (ret == -1)
+        {
+            delete cmsg;
+            return -2;
+        }
+        nFd = *(int*)CMSG_DATA(cmsg);
+        delete cmsg;
         return 0;
     }
 
@@ -209,9 +295,10 @@ private:
      * - CFunction 是模板类，不同入口函数会生成不同 CFunction 类型。
      * - CProcess 只关心“能调用 operator()”，所以保存 CFuncBase* 即可。
      */
-    CFuncBase* m_func;
+    CFuncBase*  m_func;
+    pid_t       m_pid;
+    int         pipes[2];//管道，主进程用来传递文件描述符给子进程
 
-    pid_t m_pid;
 };
 
 int CreateLogServer(CProcess* proc)
@@ -240,9 +327,17 @@ int main()
 
     procLog.SetEntryFunc(CreateLogServer, &procLog);
     int nRet = procLog.CreateSubProc();
+    if (nRet != 0)
+    {
+        return -1;
+    }
    
     procClients.SetEntryFunc(CreateClientServer, &procClients);
     nRet = procClients.CreateSubProc();
+	if (nRet != 0)
+	{
+		return -2;
+	}
 
     return 0;
 }
