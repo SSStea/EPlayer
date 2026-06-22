@@ -4,6 +4,8 @@
 #include <functional>
 #include <memory.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -206,7 +208,8 @@ public:
             /* 子进程分支*/
             close(pipes[1]);//关闭管道的写，这样子进程就有读管道
             pipes[1] = 0;
-            return (*m_func)();
+            nRet = (*m_func)();
+            exit(0);
         }
 
         close(pipes[0]);//关闭管道的读，这样主进程就有写管道
@@ -219,10 +222,11 @@ public:
     int nSendFD(int nFd)//主进程
     {
         iovec iov[2];
-        iov[0].iov_base = (char*)"edoyun";
-        iov[0].iov_len = 7;
-		iov[1].iov_base = (char*)"jeuding";
-		iov[1].iov_len = 8;
+        char buf[2][10] = { "edoyun", "jeuding" };
+        iov[0].iov_base = buf[0];
+        iov[0].iov_len = sizeof(buf[0]);
+		iov[1].iov_base = buf[1];
+		iov[1].iov_len = sizeof(buf[1]);
 
         cmsghdr* cmsg = new cmsghdr;
         bzero(cmsg, sizeof(cmsghdr));
@@ -236,6 +240,7 @@ public:
         *(int*)CMSG_DATA(cmsg) = nFd;
 
 		struct msghdr msg;
+        memset(&msg, 0, sizeof(msghdr));
         msg.msg_iov = iov;
         msg.msg_iovlen = 2;
         msg.msg_control = cmsg;
@@ -270,7 +275,8 @@ public:
 		cmsg->cmsg_level = SOL_SOCKET;//套接字级别
 		cmsg->cmsg_type = SCM_RIGHTS;//权限
 
-		msghdr msg;
+		struct msghdr msg;
+        memset(&msg, 0, sizeof(msghdr));
         msg.msg_iov = iov;
         msg.msg_iovlen = 2;
         msg.msg_control = cmsg;
@@ -303,11 +309,30 @@ private:
 
 int CreateLogServer(CProcess* proc)
 {
+    printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
     return 0;
 }
 
 int CreateClientServer(CProcess* proc)
 {
+	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+
+    int nFd = -1;
+	int nRet = proc->nRecvFd(nFd);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	if (nRet != 0)
+	{
+		printf("%d msg:%s", errno, strerror(errno));
+	}
+	printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
+    
+    sleep(1);
+    char buf[10] = "";
+    lseek(nFd, 0, SEEK_SET);
+	read(nFd, buf, sizeof(buf));
+	printf("%s(%d) <%s> buf = %s\n", __FILE__, __LINE__, __FUNCTION__, buf);
+    close(nFd);
+
     return 0;
 }
 
@@ -325,19 +350,44 @@ int main()
      */
     CProcess procLog, procClients;
 
+	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+
     procLog.SetEntryFunc(CreateLogServer, &procLog);
     int nRet = procLog.CreateSubProc();
     if (nRet != 0)
-    {
+	{
+		printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
         return -1;
     }
-   
+
+	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
     procClients.SetEntryFunc(CreateClientServer, &procClients);
     nRet = procClients.CreateSubProc();
 	if (nRet != 0)
 	{
+		printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
 		return -2;
 	}
+
+	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    usleep(100 * 1000);
+
+	int nFd = open("./test.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
+	printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
+    if (nFd == -1)
+    {
+        return -3;
+	}
+
+	nRet = procClients.nSendFD(nFd);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    if (nRet != 0)
+    {
+        printf("%d msg:%s", errno, strerror(errno));
+    }
+
+    write(nFd, "edoyun", 6);
+    close(nFd);
 
     return 0;
 }
