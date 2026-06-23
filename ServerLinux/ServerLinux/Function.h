@@ -11,6 +11,12 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <functional>
+#include <memory.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <signal.h>
 
 class CFuncBase
 {

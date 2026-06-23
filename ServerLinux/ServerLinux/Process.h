@@ -8,12 +8,6 @@
  * - 调用 fork() 创建子进程。
  * - 在父进程中记录子进程 pid。
  */
-#include <functional>
-#include <memory.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
 #include "Function.h"
 
 class CProcess
