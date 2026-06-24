@@ -235,7 +235,7 @@ int CLocalSocket::Link(CSocketBase** pClient)
 		}
 	}
 
-	m_socket = 2;
+	m_status = 2;
 	return 0;
 }
 
