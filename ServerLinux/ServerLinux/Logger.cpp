@@ -236,7 +236,7 @@ LogInfo::LogInfo(
 	bAuto = false;
 
 	int count = asprintf(&buf, "%s(%d):[%s][%s]<%d-%d>(%s) ",
-		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr, pid, tid, func);
+		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr(), pid, tid, func);
 	if (count > 0)
 	{
 		m_buf = buf;
@@ -277,7 +277,7 @@ LogInfo::LogInfo(
 	bAuto = true;
 
 	int count = asprintf(&buf, "%s(%d):[%s][%s]<%d-%d>(%s) ",
-		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr, pid, tid, func);
+		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr(), pid, tid, func);
 	if (count > 0)
 	{
 		m_buf = buf;
@@ -304,7 +304,7 @@ LogInfo::LogInfo(
 	bAuto = false;
 
 	int count = asprintf(&buf, "%s(%d):[%s][%s]<%d-%d>(%s) \n",
-		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr, pid, tid, func);
+		file, line, sLevel[level], (char*)CLoggerServer::GetTimeStr(), pid, tid, func);
 	if (count > 0)
 	{
 		m_buf = buf;
