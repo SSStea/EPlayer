@@ -1,4 +1,5 @@
 #include "Process.h"
+#include "Logger.h"
 
 /*
  * 这个文件是服务端程序的启动入口。
