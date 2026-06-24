@@ -140,11 +140,16 @@ int CLocalSocket::Init(const CSockParam& param)
 	{
 		return -1;
 	}
+
 	m_param = param;
 	int type = (m_param.attr & SOCK_ISUDP) ? SOCK_DGRAM : SOCK_STREAM;
 	if(m_socket == -1)
 	{
 		m_socket = socket(PF_LOCAL, type, 0);
+	}
+	else
+	{
+		m_status = 2;//如果已经有socket那么这是accept来的套接字，应该置为已连接状态
 	}
 	if (m_socket == -1)
 	{
@@ -186,7 +191,10 @@ int CLocalSocket::Init(const CSockParam& param)
 		}
 	}
 
-	m_status = 1;
+	if(m_status == 0)
+	{
+		m_status = 1;
+	}
 	return 0;
 }
 
