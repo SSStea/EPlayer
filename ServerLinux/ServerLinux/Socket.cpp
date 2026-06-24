@@ -5,6 +5,14 @@ Buffer::Buffer(size_t size) : std::string()
 	resize(size);
 }
 
+Buffer::Buffer(const std::string& str) : std::string(str)
+{
+}
+
+Buffer::Buffer(const char* str) : std::string(str)
+{
+}
+
 Buffer::operator char* ()
 {
 	return (char*)c_str();
@@ -100,6 +108,15 @@ int CSocketBase::Close()
 		close(fd);
 	}
 	return 0;
+}
+
+CSocketBase::operator int()
+{
+	return m_socket;
+}
+CSocketBase::operator int() const
+{
+	return m_socket;
 }
 
 CLocalSocket::CLocalSocket():CSocketBase()

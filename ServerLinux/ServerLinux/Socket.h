@@ -12,6 +12,8 @@ class Buffer : public std::string
 public:
 	Buffer() : std::string() {}
 	Buffer(size_t size);
+	Buffer(const std::string& str);
+	Buffer(const char* str);
 
 	operator char* ();
 
@@ -70,6 +72,9 @@ public:
 	virtual int Send(const Buffer& data) = 0;
 	virtual int Recv(Buffer& data) = 0;
 	virtual int Close();
+
+	virtual operator int();
+	virtual operator int() const;
 
 protected:
 	//套接字描述符，默认-1
