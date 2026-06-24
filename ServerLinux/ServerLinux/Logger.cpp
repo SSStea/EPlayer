@@ -4,7 +4,10 @@
 CLoggerServer::CLoggerServer() : m_Thread(&CLoggerServer::ThreadFunc, this)
 {
 	m_server = NULL;
-	m_path = "./log/" + GetTimeStr() +".log";
+	char currPath[256] = "";
+	getcwd(currPath, sizeof(currPath));
+	m_path = currPath;
+	m_path += "/log/" + GetTimeStr() +".log";
 	printf("%s(%d) : [%s] path = %s \n", __FILE__, __LINE__, __FUNCTION__, (char*)m_path);
 }
 
