@@ -54,6 +54,7 @@ int CLoggerServer::Start()
 	}
 
 	nRet = m_Thread.Start();
+	nRet = m_epoll.Add(*m_server, EpollData((void*)m_server), EPOLLIN | EPOLLERR);
 	if (nRet != 0)
 	{
 		Close();
