@@ -113,9 +113,12 @@ int CLoggerServer::ThreadFunc()
 						}
 
 						auto it = mapClients.find(*pClient);
-						if (it->second != NULL)
+						if(it != mapClients.end())
 						{
-							delete it->second;
+							if (it->second != NULL)
+							{
+								delete it->second;
+							}
 						}
 						mapClients[*pClient] = pClient;
 					}
