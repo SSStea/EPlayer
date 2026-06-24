@@ -177,6 +177,7 @@ void CLoggerServer::Trace(const LogInfo& info)
 			return;
 		}
 
+		nRet = client.Link();
 	}
 	client.Send(info);
 }
