@@ -35,3 +35,19 @@ private:
 	bool m_bPaused;//1 表示暂停；0 表示运行中
 	static std::map<pthread_t, CThread*> m_mapThread;
 };
+
+template<typename _FUNCTION_, typename ..._ARGS_>
+inline CThread::CThread(_FUNCTION_ func, _ARGS_ ...args)
+	: m_pFunc(new CFunction< _FUNCTION_, _ARGS_...>(func, args...))
+{
+	m_thread = 0;
+	m_bPaused = false;
+}
+
+
+template<typename _FUNCTION_, typename ..._ARGS_>
+int CThread::SetThreadFunc(_FUNCTION_ func, _ARGS_ ...args)
+{
+	m_pFunc = new CFunction< _FUNCTION_, _ARGS_...>(func, args...);
+	return 0;
+}

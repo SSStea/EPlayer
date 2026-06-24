@@ -9,20 +9,7 @@ CThread::CThread()
 	m_bPaused = false;
 }
 
-template<typename _FUNCTION_, typename ..._ARGS_>
-inline CThread::CThread(_FUNCTION_ func, _ARGS_ ...args)
-	: m_pFunc(new CFunction< _FUNCTION_, _ARGS_...>(func, args...))
-{
-	m_thread = 0;
-	m_bPaused = false;
-}
 
-template<typename _FUNCTION_, typename ..._ARGS_>
-int CThread::SetThreadFunc(_FUNCTION_ func, _ARGS_ ...args)
-{
-	m_pFunc = new CFunction< _FUNCTION_, _ARGS_...>(func, args...);
-	return 0;
-}
 
 int CThread::Start()
 {
