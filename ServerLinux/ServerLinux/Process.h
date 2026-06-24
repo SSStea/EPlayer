@@ -152,11 +152,12 @@ public:
         msg.msg_controllen = cmsg->cmsg_len;
 
         ssize_t ret = recvmsg(pipes[0], &msg, 0);
-        if (ret == -1)
-        {
-            delete cmsg;
-            return -2;
-        }
+		if (ret <= 0)
+		{
+			nFd = -1;
+			delete cmsg;
+			return -2;
+		}
         nFd = *(int*)CMSG_DATA(cmsg);
         delete cmsg;
         return 0;
