@@ -53,7 +53,6 @@ int CLoggerServer::Start()
 		return -5;
 	}
 
-	nRet = m_Thread.Start();
 	nRet = m_epoll.Add(*m_server, EpollData((void*)m_server), EPOLLIN | EPOLLERR);
 	if (nRet != 0)
 	{
@@ -61,11 +60,21 @@ int CLoggerServer::Start()
 		return -6;
 	}
 
+	nRet = m_Thread.Start();
+	if (nRet != 0)
+	{
+		printf("%s(%d) <%s> pid = %d, errno = %d, msg: %s ret = %d\n",
+			__FILE__, __LINE__, __FUNCTION__, getpid(), errno, strerror(errno), nRet);
+		Close();
+		return -7;
+	}
+
 	return 0;
 }
 
 int CLoggerServer::ThreadFunc()
 {
+	printf("%s(%d) : [%s] %d %d %p\n", __FILE__, __LINE__, __FUNCTION__, m_Thread.isValid(), (int)m_epoll, m_server);
 	EPEvents events;
 	std::map<int, CSocketBase*> mapClients;
 	while (m_Thread.isValid() && m_epoll != -1 && m_server != NULL)
@@ -90,12 +99,14 @@ int CLoggerServer::ThreadFunc()
 					{
 						CSocketBase* pClient = NULL;
 						int nRet = m_server->Link(&pClient);
+						printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 						if (nRet < 0)
 						{
 							continue;
 						}
 
 						nRet = m_epoll.Add(*pClient, EpollData((void*)pClient), EPOLLIN | EPOLLERR);
+						printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 						if (nRet < 0)
 						{
 							delete pClient;
@@ -115,6 +126,7 @@ int CLoggerServer::ThreadFunc()
 						{
 							Buffer data( 1024 * 1024 );
 							int nRet = pClient->Recv(data);
+							printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 							if (nRet <= 0)
 							{
 								delete pClient;
@@ -122,6 +134,7 @@ int CLoggerServer::ThreadFunc()
 							}
 							else
 							{
+								printf("%s(%d) : [%s] ret = %s\n", __FILE__, __LINE__, __FUNCTION__, (char*)data);
 								WriteLog(data);
 							}
 						}
@@ -164,9 +177,9 @@ int CLoggerServer::Close()
 void CLoggerServer::Trace(const LogInfo& info)
 {
 	static thread_local CLocalSocket client;//每次线程进Trace都会调用构造函数创建一个新的客户端
+	int nRet = 0;
 	if (client == -1)
 	{
-		int nRet = 0;
 		nRet = client.Init(CSockParam("./log/server.sock", 0));
 		if (nRet != 0)
 		{
@@ -176,10 +189,12 @@ void CLoggerServer::Trace(const LogInfo& info)
 
 			return;
 		}
-
+		printf("%s(%d) : [%s] ret = %d client = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet, (int)client);
 		nRet = client.Link();
+		printf("%s(%d) : [%s] ret = %d client = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet, (int)client);
 	}
-	client.Send(info);
+	nRet = client.Send(info);
+	printf("%s(%d) : [%s] ret = %d client = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet, (int)client);
 }
 
 Buffer CLoggerServer::GetTimeStr()
@@ -189,7 +204,7 @@ Buffer CLoggerServer::GetTimeStr()
 	ftime(&tmb);
 	tm* pTm = localtime(&tmb.time);
 	int nSize = snprintf(result, result.size(),
-		"%04d-%02d-%02d==%02d-%02d-%02d.%03d",
+		"%04d-%02d-%02d_%02d-%02d-%02d.%03d",
 		pTm->tm_year + 1900,
 		pTm->tm_mon + 1,
 		pTm->tm_mday,
@@ -218,7 +233,7 @@ void CLoggerServer::WriteLog(const Buffer& data)
 	}
 }
 
-//Trace调用
+//Trace调用 TRACE
 LogInfo::LogInfo(
 	const char* file,
 	int line,
@@ -261,7 +276,7 @@ LogInfo::LogInfo(
 	va_end(ap);
 }
 
-//自己主动发
+//自己主动发 LOG
 LogInfo::LogInfo(
 	const char* file,
 	int line,
@@ -285,7 +300,7 @@ LogInfo::LogInfo(
 	}
 }
 
-//Trace调用
+//Trace调用 DUMP
 LogInfo::LogInfo(
 	const char* file,
 	int line,
@@ -329,7 +344,7 @@ LogInfo::LogInfo(
 			for (size_t j = i - 15; j <= i; j++)
 			{
 				if (((Data[j] & 0xFF) > 31) && ((Data[j] & 0xFF) < 0x7F))
-				{//ASCII码可显示的字符
+				{//ASCII码可显示的字符，ASCII码不会显示中文
 					m_buf += Data[j];
 				}
 				else

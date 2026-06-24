@@ -229,6 +229,7 @@ int CLocalSocket::Link(CSocketBase** pClient)
 		nRet = (*pClient)->Init(param);
 		if (nRet != 0)
 		{
+			printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 			delete *pClient;
 			*pClient = NULL;
 			return -5;

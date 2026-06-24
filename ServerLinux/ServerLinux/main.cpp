@@ -21,33 +21,65 @@
 
 int CreateLogServer(CProcess* proc)
 {
-    printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    //printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    CLoggerServer logServer;
+    int nRet = logServer.Start();
+    if (nRet != 0)
+    {
+        printf("%s(%d) <%s> pid = %d, errno = %d, msg: %s ret = %d\n",
+            __FILE__, __LINE__, __FUNCTION__, getpid(), errno, strerror(errno), nRet);
+    }
+
+    int nFd = 0;
+    while (true)
+    {
+        nRet = proc->nRecvFd(nFd);
+		printf("%s(%d) <%s> nFd = %d nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd, nRet);
+        if (nFd <= 0)
+        {
+            break;
+        }
+    }
+
+    nRet = logServer.Close();
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+
     return 0;
 }
 
 int CreateClientServer(CProcess* proc)
 {
-	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+	//printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
 
     int nFd = -1;
 	int nRet = proc->nRecvFd(nFd);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	//printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 	if (nRet != 0)
 	{
-		printf("%d msg:%s", errno, strerror(errno));
+		//printf("%d msg:%s", errno, strerror(errno));
 	}
-	printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
+	//printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
     
     sleep(1);
     char buf[10] = "";
     lseek(nFd, 0, SEEK_SET);
 	read(nFd, buf, sizeof(buf));
-	printf("%s(%d) <%s> buf = %s\n", __FILE__, __LINE__, __FUNCTION__, buf);
+	//printf("%s(%d) <%s> buf = %s\n", __FILE__, __LINE__, __FUNCTION__, buf);
     close(nFd);
 
     return 0;
 }
 
+int LogTest()
+{
+    char buffer[] = "hello edoyun! 冯老师";
+    usleep(1000 * 100);
+    TRACEI("here is log %d %c %f %g %s 哈哈 嘻嘻 易道云", 10, 'A', 1.0f, 2.0, buffer);
+    DUMPD(buffer, sizeof(buffer));
+    LOGE << 100 << " " << 'S' << " " << 0.12345f << " " << 1.23456789 << " " << buffer << " 易道云编程";
+
+    return 0;
+}
 
 int main()
 {
@@ -73,6 +105,9 @@ int main()
 		printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
         return -1;
     }
+
+    LogTest();
+
 
 	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
     procClients.SetEntryFunc(CreateClientServer, &procClients);
@@ -102,6 +137,9 @@ int main()
 
     write(nFd, "edoyun", 6);
     close(nFd);
+
+    procLog.nSendFD(-1);
+    (void)getchar();
 
     return 0;
 }
