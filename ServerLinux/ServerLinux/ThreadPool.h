@@ -31,7 +31,7 @@ private:
 template<typename _FUNCTION_, typename ..._ARGS_>
 inline int CThreadPool::AddTask(_FUNCTION_ func, _ARGS_ ...args)
 {
-	static thread_local CLocalSocket client;//每个线程调用这个函数分配的客户端是不同的
+	static thread_local CSocket client;//每个线程调用这个函数分配的客户端是不同的
 	int nRet = 0;
 	
 	if (client == -1)

@@ -39,7 +39,7 @@ int CLoggerServer::Start()
 		return -3;
 	}
 
-	m_server = new CLocalSocket();
+	m_server = new CSocket();
 	if (m_server == NULL)
 	{
 		Close();
@@ -181,7 +181,7 @@ int CLoggerServer::Close()
 
 void CLoggerServer::Trace(const LogInfo& info)
 {
-	static thread_local CLocalSocket client;//每次线程进Trace都会调用构造函数创建一个新的客户端
+	static thread_local CSocket client;//每次线程进Trace都会调用构造函数创建一个新的客户端
 	int nRet = 0;
 	if (client == -1)
 	{

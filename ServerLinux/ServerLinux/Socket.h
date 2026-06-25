@@ -26,7 +26,7 @@ enum SockAttr{
 	SOCK_ISSERVER = 1, //是否服务器，1表示是，0表示客户端
 	SOCK_ISNONBLOCK = 2,   //是否非阻塞，1表示是，0表示否
 	SOCK_ISUDP = 4,		//是否为UDP，1表示UDP，0表示TCP
-
+	SOCK_ISNETWORK = 8, //是否为IP协议，1表示IP协议，0表示本地套接字
 };
 
 class CSockParam
@@ -84,13 +84,13 @@ protected:
 	CSockParam m_param;
 };
 
-class CLocalSocket : public CSocketBase
+class CSocket : public CSocketBase
 {
 public:
-	CLocalSocket();
-	CLocalSocket(int sock);//客户端构造函数
+	CSocket();
+	CSocket(int sock);//客户端构造函数
 	//传递析构操作
-	virtual ~CLocalSocket();
+	virtual ~CSocket();
 
 	//初始化 服务器 套接字创建、bind、listen； 客户端 套接字创建
 	virtual int Init(const CSockParam& param);
@@ -102,4 +102,3 @@ public:
 	virtual int Recv(Buffer& data);
 	virtual int Close();
 };
-

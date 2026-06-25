@@ -40,9 +40,9 @@ CSockParam::CSockParam(const Buffer& ip, short port, int attr)
 {
 	this->ip = ip;
 	this->port = port;
-	this->attr = attr;
+	this->attr = attr | SOCK_ISNETWORK;
 	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = port;
+	addr_in.sin_port = htons(port);
 	addr_in.sin_addr.s_addr = inet_addr(ip);
 }
 
@@ -103,7 +103,8 @@ int CSocketBase::Close()
 	m_status = 3;
 	if (m_socket != -1)
 	{
-		if (m_param.attr & SOCK_ISSERVER)
+		if ((m_param.attr & SOCK_ISSERVER) && //服务器
+			((m_param.attr & SOCK_ISNETWORK) == 0))// 非IP协议
 		{
 			unlink(m_param.ip);
 		}
@@ -123,21 +124,21 @@ CSocketBase::operator int() const
 	return m_socket;
 }
 
-CLocalSocket::CLocalSocket():CSocketBase()
+CSocket::CSocket():CSocketBase()
 {
 }
 
-CLocalSocket::CLocalSocket(int sock) : CSocketBase()
+CSocket::CSocket(int sock) : CSocketBase()
 {
 	m_socket = sock;
 }
 
-CLocalSocket::~CLocalSocket()
+CSocket::~CSocket()
 {
 	Close();
 }
 
-int CLocalSocket::Init(const CSockParam& param)
+int CSocket::Init(const CSockParam& param)
 {
 	if (m_status != 0)
 	{
@@ -148,7 +149,14 @@ int CLocalSocket::Init(const CSockParam& param)
 	int type = (m_param.attr & SOCK_ISUDP) ? SOCK_DGRAM : SOCK_STREAM;
 	if(m_socket == -1)
 	{
-		m_socket = socket(PF_LOCAL, type, 0);
+		if (param.attr & SOCK_ISNETWORK)
+		{
+			m_socket = socket(PF_INET, type, 0);
+		}
+		else
+		{
+			m_socket = socket(PF_LOCAL, type, 0);
+		}
 	}
 	else
 	{
@@ -162,7 +170,14 @@ int CLocalSocket::Init(const CSockParam& param)
 	int nRet = 0;
 	if (m_param.attr & SOCK_ISSERVER)//判断是否是服务器
 	{
-		nRet = bind(m_socket, m_param.addrun(), sizeof(sockaddr_un));
+		if (param.attr & SOCK_ISNETWORK)
+		{
+			nRet = bind(m_socket, m_param.addrin(), sizeof(sockaddr_in));
+		}
+		else
+		{
+			nRet = bind(m_socket, m_param.addrun(), sizeof(sockaddr_un));
+		}
 		if (nRet == -1)
 		{
 			if (errno != EAGAIN)
@@ -201,7 +216,7 @@ int CLocalSocket::Init(const CSockParam& param)
 	return 0;
 }
 
-int CLocalSocket::Link(CSocketBase** pClient)
+int CSocket::Link(CSocketBase** pClient)
 {
 	if (m_status <= 0 || m_socket == -1)
 	{
@@ -217,14 +232,26 @@ int CLocalSocket::Link(CSocketBase** pClient)
 		}
 
 		CSockParam param;
-		socklen_t len = sizeof(sockaddr_un);
-		int nFd = accept(m_socket, param.addrun(), &len);
+		socklen_t len = 0;
+		int nFd = -1;
+
+		if (m_param.attr & SOCK_ISNETWORK)
+		{
+			param.attr |= SOCK_ISNETWORK;
+			len = sizeof(sockaddr_in);
+			nFd = accept(m_socket, param.addrin(), &len);
+		}
+		else
+		{
+			len = sizeof(sockaddr_un);
+			nFd = accept(m_socket, param.addrun(), &len);
+		}
 		if (nFd == -1)
 		{
 			return -3;
 		}
 
-		*pClient = new CLocalSocket(nFd);
+		*pClient = new CSocket(nFd);
 		if (*pClient == NULL)
 		{
 			return -4;
@@ -240,7 +267,14 @@ int CLocalSocket::Link(CSocketBase** pClient)
 	}
 	else
 	{
-		nRet = connect(m_socket, m_param.addrun(), sizeof(sockaddr_un));
+		if (m_param.attr & SOCK_ISNETWORK)
+		{
+			nRet = connect(m_socket, m_param.addrin(), sizeof(sockaddr_in));
+		}
+		else
+		{
+			nRet = connect(m_socket, m_param.addrun(), sizeof(sockaddr_un));
+		}
 		if (nRet != 0)
 		{
 			printf("%d msg:%s\n", errno, strerror(errno));
@@ -252,7 +286,7 @@ int CLocalSocket::Link(CSocketBase** pClient)
 	return 0;
 }
 
-int CLocalSocket::Send(const Buffer& data)
+int CSocket::Send(const Buffer& data)
 {
 	if (m_status < 2 || m_socket == -1)
 	{
@@ -277,7 +311,7 @@ int CLocalSocket::Send(const Buffer& data)
 	return 0;
 }
 
-int CLocalSocket::Recv(Buffer& data)
+int CSocket::Recv(Buffer& data)
 {
 	if (m_status < 2 || m_socket == -1)
 	{
@@ -302,7 +336,7 @@ int CLocalSocket::Recv(Buffer& data)
 	return -3;//套接字被关闭
 }
 
-int CLocalSocket::Close()
+int CSocket::Close()
 {
 	return CSocketBase::Close();
 }

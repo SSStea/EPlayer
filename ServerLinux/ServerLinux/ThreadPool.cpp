@@ -33,7 +33,7 @@ int CThreadPool::Start(unsigned count)
 		return -2;
 	}
 
-	m_server = new CLocalSocket();
+	m_server = new CSocket();
 	if (m_server == NULL)
 	{
 		return -3;
