@@ -103,7 +103,10 @@ int CSocketBase::Close()
 	m_status = 3;
 	if (m_socket != -1)
 	{
-		unlink(m_param.ip);
+		if (m_param.attr & SOCK_ISSERVER)
+		{
+			unlink(m_param.ip);
+		}
 		int fd = m_socket;
 		m_socket = -1;
 		close(fd);
