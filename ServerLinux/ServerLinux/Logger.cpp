@@ -133,8 +133,8 @@ int CLoggerServer::ThreadFunc()
 							printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 							if (nRet <= 0)
 							{
-								delete pClient;
 								mapClients[*pClient] = NULL;
+								delete pClient;
 								printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 							}
 							else
