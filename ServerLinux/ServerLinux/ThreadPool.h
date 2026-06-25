@@ -18,6 +18,7 @@ public:
 	void Close();
 	template<typename _FUNCTION_, typename... _ARGS_>
 	int AddTask(_FUNCTION_ func, _ARGS_... args);
+	size_t Size() const;
 
 private:
 	CEpoll					m_epoll;
