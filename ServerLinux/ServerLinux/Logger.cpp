@@ -79,7 +79,8 @@ int CLoggerServer::ThreadFunc()
 	std::map<int, CSocketBase*> mapClients;
 	while (m_Thread.isValid() && m_epoll != -1 && m_server != NULL)
 	{
-		ssize_t ret = m_epoll.WaitEvents(events, 1);
+		ssize_t ret = m_epoll.WaitEvents(events, 1000);
+		printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, ret);
 		if (ret < 0)
 		{
 			break;
@@ -134,6 +135,7 @@ int CLoggerServer::ThreadFunc()
 							{
 								delete pClient;
 								mapClients[*pClient] = NULL;
+								printf("%s(%d) : [%s] ret = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
 							}
 							else
 							{

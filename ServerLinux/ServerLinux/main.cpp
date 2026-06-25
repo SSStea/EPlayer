@@ -1,5 +1,6 @@
 #include "Process.h"
 #include "Logger.h"
+#include "ThreadPool.h"
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -133,11 +134,45 @@ int main()
 	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
     if (nRet != 0)
     {
-        printf("%d msg:%s", errno, strerror(errno));
+        printf("%d msg:%s\n", errno, strerror(errno));
     }
 
     write(nFd, "edoyun", 6);
     close(nFd);
+
+    CThreadPool pool;
+    pool.Start(4);
+
+    nRet = pool.AddTask(LogTest);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	if (nRet != 0)
+	{
+		printf("%d msg:%s\n", errno, strerror(errno));
+	}
+
+    nRet = pool.AddTask(LogTest);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	if (nRet != 0)
+	{
+		printf("%d msg:%s\n", errno, strerror(errno));
+	}
+
+    nRet = pool.AddTask(LogTest);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	if (nRet != 0)
+	{
+		printf("%d msg:%s\n", errno, strerror(errno));
+	}
+
+    nRet = pool.AddTask(LogTest);
+	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+	if (nRet != 0)
+	{
+		printf("%d msg:%s\n", errno, strerror(errno));
+	}
+
+    (void)getchar();
+    pool.Close();
 
     procLog.nSendFD(-1);
     (void)getchar();

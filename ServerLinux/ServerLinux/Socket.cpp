@@ -240,6 +240,7 @@ int CLocalSocket::Link(CSocketBase** pClient)
 		nRet = connect(m_socket, m_param.addrun(), sizeof(sockaddr_un));
 		if (nRet != 0)
 		{
+			printf("%d msg:%s\n", errno, strerror(errno));
 			return -6;
 		}
 	}
