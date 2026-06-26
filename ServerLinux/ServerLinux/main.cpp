@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "ThreadPool.h"
 #include "EdoyunPlayerServer.h"
+#include "HttpParser.h"
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -181,22 +182,101 @@ int old_test()
     return 0;
 }
 
-int main()
+int server_test()
 {
-    int nRet = 0;
+	int nRet = 0;
 	CProcess procLog;
-    CEdoyunPlayerServer business(2);
-    CServer server;
+	CEdoyunPlayerServer business(2);
+	CServer server;
 
 	procLog.SetEntryFunc(CreateLogServer, &procLog);
 	nRet = procLog.CreateSubProc();
-    RET_ERR(nRet, -1);
+	RET_ERR(nRet, -1);
 
-    nRet = server.Init(&business);
-    RET_ERR(nRet, -2);
+	nRet = server.Init(&business);
+	RET_ERR(nRet, -2);
 
-    nRet = server.Run();
-    RET_ERR(nRet, -3);
+	nRet = server.Run();
+	RET_ERR(nRet, -3);
+
+	return 0;
+}
+
+int http_test()
+{
+    Buffer str = "GET /favicon.ico HTTP/1.1\r\n"
+        "Host: 0.0.0.0=5000\r\n"
+        "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\n"
+        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*; q = 0.8\r\n"
+        "Accept-Language: en-us,en;q=0.5\r\n"
+        "Accept-Encoding: gzip,deflate\r\n"
+        "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+        "Keep-Alive: 300\r\n"
+        "Connection: keep-alive\r\n"
+        "\r\n";
+    CHttpParser parser;
+    size_t size = parser.Parser(str);
+    if (parser.Errno() != 0)
+    {
+        printf("errno %d\n", parser.Errno());
+        return -1;
+    }
+    if (size != 368)
+    {
+        printf("size error:%lld %lld\n", size , str.size());
+        return -2;
+    }
+    printf("Method = %d, Url = %s\n", parser.Method(), (char*)parser.Url());
+
+    str = "GET /favicon.ico HTTP/1.1\r\n"
+        "Host: 0.0.0.0=5000\r\n"
+        "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\n"
+        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
+    size = parser.Parser(str);
+    printf("errno:%d size error:%lld\n", parser.Errno(), size);
+    if (parser.Errno() != 0x7F)
+    {
+        return -3;
+    }
+    if (size != 0)
+    {
+        return -4;
+    }
+
+    int nRet = 0;
+    UrlParser url1("https://www.baidu.com/s?ie=utf8&oe=utf8&wd=httplib&tn=98010089_dg&ch=3");
+	nRet = url1.Parser();
+	if (nRet != 0)
+	{
+		printf("urlparser1 failed: %d\n", nRet);
+		return -5;
+	}
+	printf("ie = %s except:utf8\n", (char*)url1["ie"]);
+	printf("oe = %s except:utf8\n", (char*)url1["oe"]);
+	printf("wd = %s except:httplib\n", (char*)url1["wd"]);
+	printf("tn = %s except:98010089_dg\n", (char*)url1["tn"]);
+	printf("ch = %s except:3\n", (char*)url1["ch"]);
+
+    UrlParser url2("http://127.0.0.1:19811/?time=144000&salt=9527&user=test&sign=1234567890abcdef");
+	nRet = url2.Parser();
+	if (nRet != 0)
+	{
+		printf("urlparser2 failed: %d\n", nRet);
+		return -6;
+	}
+	printf("time = %s except:144000\n", (char*)url2["time"]);
+	printf("salt = %s except:9527\n", (char*)url2["salt"]);
+	printf("user = %s except:test\n", (char*)url2["user"]);
+	printf("sign = %s except:1234567890abcdef\n", (char*)url2["sign"]);
+	printf("host:%s port:%d\n", (char*)url2.Host(), url2.Port());
 
     return 0;
+}
+
+int main()
+{
+    int nRet = http_test();
+    printf("main: nRet = %d\n", nRet);
+
+    return nRet;
 }
