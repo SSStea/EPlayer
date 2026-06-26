@@ -75,6 +75,8 @@ public:
 
 	virtual operator int();
 	virtual operator int() const;
+	virtual operator const sockaddr_in* () const;
+	virtual operator sockaddr_in* ();
 
 protected:
 	//套接字描述符，默认-1

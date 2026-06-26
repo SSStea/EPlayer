@@ -124,6 +124,16 @@ CSocketBase::operator int() const
 	return m_socket;
 }
 
+CSocketBase::operator const sockaddr_in* () const
+{
+	return &m_param.addr_in;
+}
+
+CSocketBase::operator sockaddr_in* ()
+{
+	return &m_param.addr_in;
+}
+
 CSocket::CSocket():CSocketBase()
 {
 }
