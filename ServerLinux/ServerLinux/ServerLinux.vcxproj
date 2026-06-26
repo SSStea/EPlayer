@@ -76,7 +76,9 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClCompile Include="Epoll.cpp" />
-	<ClCompile Include="EdoyunPlayerServer.cpp" />
+    <ClCompile Include="EdoyunPlayerServer.cpp" />
+    <ClCompile Include="HttpParser.cpp" />
+    <ClCompile Include="http_parser.c" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Server.cpp" />
@@ -86,8 +88,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Epoll.h" />
-	<ClInclude Include="EdoyunPlayerServer.h" />
+    <ClInclude Include="EdoyunPlayerServer.h" />
     <ClInclude Include="Function.h" />
+    <ClInclude Include="HttpParser.h" />
+    <ClInclude Include="http_parser.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Server.h" />

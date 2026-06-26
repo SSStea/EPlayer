@@ -14,6 +14,8 @@ public:
 	Buffer(size_t size);
 	Buffer(const std::string& str);
 	Buffer(const char* str);
+	Buffer(const char* str, size_t length);
+	Buffer(const char* begin, const char* end);
 
 	operator char* ();
 
