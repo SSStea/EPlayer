@@ -18,6 +18,9 @@
 #include <fcntl.h>
 #include <signal.h>
 
+class CSocketBase;
+class Buffer;
+
 class CFuncBase
 {
 public:
@@ -35,7 +38,9 @@ public:
      * - CFuncBase 只规定“能被调用”这个能力。
      * - 真正怎么调用、调用哪个函数、带哪些参数，由派生类 CFunction 实现。
      */
-    virtual int operator()() = 0;
+    virtual int operator()() { return -1; }
+    virtual int operator()(CSocketBase*) { return -1; }
+    virtual int operator()(CSocketBase*, const Buffer&) { return -1; }
 
 private:
 
@@ -117,3 +122,4 @@ public:
      */
     typename std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
 };
+

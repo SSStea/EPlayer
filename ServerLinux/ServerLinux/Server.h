@@ -3,6 +3,47 @@
 #include "ThreadPool.h"
 #include "Epoll.h"
 #include "Process.h"
+#include "Function.h"
+
+template<typename _FUNCTION_, typename... _ARGS_>
+class CConnectedFunction : public CFuncBase
+{
+public:
+	CConnectedFunction(_FUNCTION_ func, _ARGS_... args)
+		: m_binder(std::forward<_FUNCTION_>(func), std::forward<_ARGS_>(args)...)
+	{
+
+	}
+
+	virtual ~CConnectedFunction() {}
+
+	virtual int operator()(CSocketBase* pClient)
+	{
+		return m_binder(pClient);
+	}
+
+	typename std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
+};
+
+template<typename _FUNCTION_, typename... _ARGS_>
+class CReceivedFunction : public CFuncBase
+{
+public:
+	CReceivedFunction(_FUNCTION_ func, _ARGS_... args)
+		: m_binder(std::forward<_FUNCTION_>(func), std::forward<_ARGS_>(args)...)
+	{
+
+	}
+
+	virtual ~CReceivedFunction() {}
+
+	virtual int operator()(CSocketBase* pClient, const Buffer& data)
+	{
+		return m_binder(pClient, data);
+	}
+
+	typename std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
+};
 
 class CBusiness
 {
