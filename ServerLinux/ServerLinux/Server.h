@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Socket.h"
 #include "ThreadPool.h"
 #include "Epoll.h"
@@ -82,7 +82,7 @@ private:
 	CSocketBase* m_server;
 	CEpoll m_epoll;
 	CProcess m_process;
-	CBusiness* m_business;//ҵ��ģ�飬��Ҫ�ֶ��ͷ�
+	CBusiness* m_business;//业务模块，需要手动释放
 
 	int ThreadFunc();
 };
