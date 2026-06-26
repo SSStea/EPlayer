@@ -54,6 +54,12 @@ CSockParam::CSockParam(const Buffer& path, int arrt)
 	strcpy(addr_un.sun_path, path);
 }
 
+CSockParam::CSockParam(const sockaddr_in* addr, int arrt)
+{
+	this->attr = attr | SOCK_ISNETWORK;
+	memcpy(&addr_in, addr, sizeof(sockaddr_in));
+}
+
 CSockParam::CSockParam(const CSockParam& param)
 {
 	ip = param.ip;

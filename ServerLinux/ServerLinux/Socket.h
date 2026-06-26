@@ -35,6 +35,7 @@ public:
 	CSockParam();
 	CSockParam(const Buffer& ip, short port, int attr);
 	CSockParam(const Buffer& path, int arrt);
+	CSockParam(const sockaddr_in* addr, int arrt);
 
 	~CSockParam(){}
 
