@@ -1,6 +1,7 @@
 #include "Process.h"
 #include "Logger.h"
 #include "ThreadPool.h"
+#include "EdoyunPlayerServer.h"
 
 /*
  * 这个文件是服务端程序的启动入口。
@@ -82,7 +83,7 @@ int LogTest()
     return 0;
 }
 
-int main()
+int old_test()
 {
     //printf("%s 向你问好!\n", "ServerLinux");
     /*
@@ -93,17 +94,17 @@ int main()
      * - 每个服务进程都有自己的入口函数和 pid。
      * - 分开保存可以独立启动、独立监控。
      */
-    //CProcess::SwitchDeamon();
+     //CProcess::SwitchDeamon();
 
     CProcess procLog, procClients;
 
-	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
 
     procLog.SetEntryFunc(CreateLogServer, &procLog);
     int nRet = procLog.CreateSubProc();
     if (nRet != 0)
-	{
-		printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    {
+        printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
         return -1;
     }
 
@@ -111,27 +112,27 @@ int main()
     CThread thread(LogTest);
     thread.Start();
 
-	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
     procClients.SetEntryFunc(CreateClientServer, &procClients);
     nRet = procClients.CreateSubProc();
-	if (nRet != 0)
-	{
-		printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
-		return -2;
-	}
+    if (nRet != 0)
+    {
+        printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+        return -2;
+    }
 
-	printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
+    printf("%s(%d) <%s> pid = %d\n", __FILE__, __LINE__, __FUNCTION__, getpid());
     usleep(100 * 1000);
 
-	int nFd = open("./test.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
-	printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
+    int nFd = open("./test.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
+    printf("%s(%d) <%s> fd = %d\n", __FILE__, __LINE__, __FUNCTION__, nFd);
     if (nFd == -1)
     {
         return -3;
-	}
+    }
 
-	nRet = procClients.nSendFD(nFd);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    nRet = procClients.nSendFD(nFd);
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
     if (nRet != 0)
     {
         printf("%d msg:%s\n", errno, strerror(errno));
@@ -144,38 +145,58 @@ int main()
     pool.Start(4);
 
     nRet = pool.AddTask(LogTest);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
-	if (nRet != 0)
-	{
-		printf("%d msg:%s\n", errno, strerror(errno));
-	}
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    if (nRet != 0)
+    {
+        printf("%d msg:%s\n", errno, strerror(errno));
+    }
 
     nRet = pool.AddTask(LogTest);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
-	if (nRet != 0)
-	{
-		printf("%d msg:%s\n", errno, strerror(errno));
-	}
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    if (nRet != 0)
+    {
+        printf("%d msg:%s\n", errno, strerror(errno));
+    }
 
     nRet = pool.AddTask(LogTest);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
-	if (nRet != 0)
-	{
-		printf("%d msg:%s\n", errno, strerror(errno));
-	}
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    if (nRet != 0)
+    {
+        printf("%d msg:%s\n", errno, strerror(errno));
+    }
 
     nRet = pool.AddTask(LogTest);
-	printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
-	if (nRet != 0)
-	{
-		printf("%d msg:%s\n", errno, strerror(errno));
-	}
+    printf("%s(%d) <%s> nRet = %d\n", __FILE__, __LINE__, __FUNCTION__, nRet);
+    if (nRet != 0)
+    {
+        printf("%d msg:%s\n", errno, strerror(errno));
+    }
 
     (void)getchar();
     pool.Close();
 
     procLog.nSendFD(-1);
     (void)getchar();
+
+    return 0;
+}
+
+int main()
+{
+    int nRet = 0;
+	CProcess procLog;
+    CEdoyunPlayerServer business(2);
+    CServer server;
+
+	procLog.SetEntryFunc(CreateLogServer, &procLog);
+	nRet = procLog.CreateSubProc();
+    RET_ERR(nRet, -1);
+
+    nRet = server.Init(&business);
+    RET_ERR(nRet, -2);
+
+    nRet = server.Run();
+    RET_ERR(nRet, -3);
 
     return 0;
 }
