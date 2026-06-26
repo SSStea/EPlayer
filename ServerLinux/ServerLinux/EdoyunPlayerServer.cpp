@@ -39,7 +39,7 @@ int CEdoyunPlayerServer::BusinessProc(CProcess* proc)
 
 	while (m_epoll != -1)
 	{
-		nRet = proc->nRecvFd(nSock);
+		nRet = proc->nRecvSocket(nSock, &addr);
 		if (nRet < 0 || nSock == 0)
 		{
 			break;

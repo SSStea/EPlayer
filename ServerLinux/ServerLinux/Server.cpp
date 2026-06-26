@@ -128,7 +128,7 @@ int CServer::ThreadFunc()
 							continue;
 						}
 
-						nRet = m_process.nSendFD(*pClient);
+						nRet = m_process.nSendSocket(*pClient, *pClient);
 						if (nRet != 0)
 						{
 							char buf[128] = "";
