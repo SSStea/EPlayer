@@ -219,8 +219,8 @@ int UrlParser::Parser()
     target = strchr(value, ':');
     if (target != NULL)
     {
-        m_host = Buffer(pos, target);
-        m_port = atoi(Buffer(target + 1, pos + value.size()));
+        m_host = Buffer(value, target);
+        m_port = atoi(Buffer(target + 1, (char*)value + value.size()));
     }
     else
     {
