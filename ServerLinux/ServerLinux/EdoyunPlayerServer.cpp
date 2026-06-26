@@ -21,20 +21,29 @@ CEdoyunPlayerServer::~CEdoyunPlayerServer()
 
 int CEdoyunPlayerServer::BusinessProc(CProcess* proc)
 {
+	using namespace std::placeholders;
+
 	int nRet = 0;
 	int nSock = 0;
 	sockaddr_in addr;
 
-	nRet = m_epoll.Creat(m_nCount);
+	//_1 _2是占位符，告诉模板函数可变参数有多少个我还不清楚，但是我先把位置占上
+	nRet = setConnectedCallback(&CEdoyunPlayerServer::Connected, this, _1);
 	RET_ERR(nRet, -1);
 
-	nRet = m_pool.Start(m_nCount);
+	nRet = recvCallback(&CEdoyunPlayerServer::Received, this, _1, _2);
 	RET_ERR(nRet, -2);
+
+	nRet = m_epoll.Creat(m_nCount);
+	RET_ERR(nRet, -3);
+
+	nRet = m_pool.Start(m_nCount);
+	RET_ERR(nRet, -4);
 
 	for (unsigned i = 0; i < m_nCount; i++)
 	{
 		nRet = m_pool.AddTask(&CEdoyunPlayerServer::ThreadFunc, this);
-		RET_ERR(nRet, -3);
+		RET_ERR(nRet, -5);
 	}
 
 	while (m_epoll != -1)

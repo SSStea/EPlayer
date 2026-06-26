@@ -90,7 +90,7 @@ private:
 template<typename _FUNCTION_, typename ..._ARGS_>
 inline int CBusiness::setConnectedCallback(_FUNCTION_ func, _ARGS_ ...args)
 {
-	m_connectedCallback = new CFunction<_FUNCTION_, _ARGS_...>(func, args...);
+	m_connectedCallback = new CConnectedFunction<_FUNCTION_, _ARGS_...>(func, args...);
 	if (m_connectedCallback == NULL)
 	{
 		return -1;
@@ -102,7 +102,7 @@ inline int CBusiness::setConnectedCallback(_FUNCTION_ func, _ARGS_ ...args)
 template<typename _FUNCTION_, typename ..._ARGS_>
 inline int CBusiness::recvCallback(_FUNCTION_ func, _ARGS_ ...args)
 {
-	m_recvCallback = new CFunction<_FUNCTION_, _ARGS_...>(func, args...);
+	m_recvCallback = new CReceivedFunction<_FUNCTION_, _ARGS_...>(func, args...);
 	if (m_recvCallback == NULL)
 	{
 		return -1;
