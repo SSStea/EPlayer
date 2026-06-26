@@ -33,5 +33,8 @@ private:
 	unsigned m_nCount;
 
 	int ThreadFunc();
+
+	int Connected(CSocketBase* pClient);
+	int Received(CSocketBase* pClient, const Buffer& data);
 };
 

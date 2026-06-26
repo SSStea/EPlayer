@@ -104,3 +104,13 @@ int CEdoyunPlayerServer::ThreadFunc()
 
 	return 0;
 }
+
+int CEdoyunPlayerServer::Connected(CSocketBase* pClient)
+{
+	return 0;
+}
+
+int CEdoyunPlayerServer::Received(CSocketBase* pClient, const Buffer& data)
+{
+	return 0;
+}
