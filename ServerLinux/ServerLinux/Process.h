@@ -9,6 +9,8 @@
  * - 在父进程中记录子进程 pid。
  */
 #include "Function.h"
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 class CProcess
 {
@@ -162,6 +164,81 @@ public:
         delete cmsg;
         return 0;
     }
+
+	int nSendSocket(int nFd, const sockaddr_in* addr)//主进程
+	{
+		iovec iov[2];
+		char buf[2][10] = { "edoyun", "jeuding" };
+		iov[0].iov_base = (void*)addr;
+		iov[0].iov_len = sizeof(sockaddr_in);
+		iov[1].iov_base = buf[1];
+		iov[1].iov_len = sizeof(buf[1]);
+
+		cmsghdr* cmsg = new cmsghdr;
+		bzero(cmsg, sizeof(cmsghdr));
+		if (cmsg == NULL)
+		{
+			return -1;
+		}
+		cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+		cmsg->cmsg_level = SOL_SOCKET;//套接字级别
+		cmsg->cmsg_type = SCM_RIGHTS;//权限
+		*(int*)CMSG_DATA(cmsg) = nFd;
+
+		struct msghdr msg;
+		memset(&msg, 0, sizeof(msghdr));
+		msg.msg_iov = iov;
+		msg.msg_iovlen = 2;
+		msg.msg_control = cmsg;
+		msg.msg_controllen = cmsg->cmsg_len;
+
+		ssize_t ret = sendmsg(pipes[1], &msg, 0);
+		delete cmsg;
+		if (ret == -1)
+		{
+			return -2;
+		}
+
+		return 0;
+	}
+
+	int nRecvSocket(int& nFd, sockaddr_in* addr)
+	{
+		iovec iov[2];
+		char buf[][10] = { "", "" };
+		iov[0].iov_base = addr;
+		iov[0].iov_len = sizeof(sockaddr_in);
+		iov[1].iov_base = buf[1];
+		iov[1].iov_len = sizeof(buf[1]);
+
+		cmsghdr* cmsg = new cmsghdr;
+		bzero(cmsg, sizeof(cmsghdr));
+		if (cmsg == NULL)
+		{
+			return -1;
+		}
+		cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+		cmsg->cmsg_level = SOL_SOCKET;//套接字级别
+		cmsg->cmsg_type = SCM_RIGHTS;//权限
+
+		struct msghdr msg;
+		memset(&msg, 0, sizeof(msghdr));
+		msg.msg_iov = iov;
+		msg.msg_iovlen = 2;
+		msg.msg_control = cmsg;
+		msg.msg_controllen = cmsg->cmsg_len;
+
+		ssize_t ret = recvmsg(pipes[0], &msg, 0);
+		if (ret <= 0)
+		{
+			nFd = -1;
+			delete cmsg;
+			return -2;
+		}
+		nFd = *(int*)CMSG_DATA(cmsg);
+		delete cmsg;
+		return 0;
+	}
 
     static int SwitchDeamon()//切换到守护进程
     {
