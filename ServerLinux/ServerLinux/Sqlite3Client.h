@@ -28,8 +28,8 @@ private:
 	sqlite3_stmt* m_stmt;
 	sqlite3* m_db;
 
-	static int ExecCallback(void* arg, int count, char** names, char** values);
-	int ExecCallback(Result& result, const _Table_& table, int count, char** names, char** values);
+	static int ExecCallback(void* arg, int count, char** values, char** names);
+	int ExecCallback(Result& result, const _Table_& table, int count, char** values, char** names);
 
 	class ExecParam
 	{

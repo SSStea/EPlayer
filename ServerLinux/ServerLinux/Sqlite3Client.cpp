@@ -158,13 +158,13 @@ bool CSqlite3Client::IsConnected()
 	return m_db != NULL;
 }
 
-int CSqlite3Client::ExecCallback(void* arg, int count, char** names, char** values)
+int CSqlite3Client::ExecCallback(void* arg, int count, char** values, char** names)
 {
 	ExecParam* param = (ExecParam*)arg;
-	return param->obj->ExecCallback(param->result, param->table, count, names, values);
+	return param->obj->ExecCallback(param->result, param->table, count, values, names);
 }
 
-int CSqlite3Client::ExecCallback(Result& result, const _Table_& table, int count, char** names, char** values)
+int CSqlite3Client::ExecCallback(Result& result, const _Table_& table, int count, char** values, char** names)
 {
 	PTable pTable = table.Copy();
 	if (pTable == nullptr)
