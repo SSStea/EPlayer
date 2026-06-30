@@ -105,3 +105,14 @@ public:
 	FieldArray FieldDefine; //列的定义，存储查询结果
 	FieldMap Fields;//列的定义映射表
 };
+
+#define DECLARE_TABLE_CLASS(name, dbase) class name : public dbase { \
+public: \
+virtual PTable Copy() const {return PTable(new name(*this));} \
+name():dbase(){Name = #name;
+
+#define DECLARE_FIELD(ntype, name, attr, type, size, default_, check)\
+{PField field(new _sqlite3_field_(ntype, #name, attr, type, size, default_, check));\
+FieldDefine.push_back(field); Fields[#name] = field;}
+
+#define DECLARE_TABLE_CLASS_END() }};
