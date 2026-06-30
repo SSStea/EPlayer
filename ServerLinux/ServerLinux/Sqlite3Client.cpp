@@ -245,9 +245,9 @@ Buffer _sqlite3_table_::Insert(const _Table_& values)
 	//INSERT INTO 表全名 (列1,...,列n) VALUES(值1,...,值n)
 	Buffer sql = "INSERT INTO " + (Buffer)*this + " (";
 	bool bIsFirst = true;
-	for (size_t i = 0; i < FieldDefine.size(); i++)
+	for (size_t i = 0; i < values.FieldDefine.size(); i++)
 	{
-		if (FieldDefine[i]->Condition & SQL_INSERT)
+		if (values.FieldDefine[i]->Condition & SQL_INSERT)
 		{
 			if (!bIsFirst)
 			{
@@ -257,15 +257,15 @@ Buffer _sqlite3_table_::Insert(const _Table_& values)
 			{
 				bIsFirst = false;
 			}
-			sql += (Buffer)*FieldDefine[i];
+			sql += (Buffer)*values.FieldDefine[i];
 		}
 	}
 
-	sql += ") VALUES(";
+	sql += ") VALUES (";
 	bIsFirst = true;
-	for (size_t i = 0; i < FieldDefine.size(); i++)
+	for (size_t i = 0; i < values.FieldDefine.size(); i++)
 	{
-		if (FieldDefine[i]->Condition & SQL_INSERT)
+		if (values.FieldDefine[i]->Condition & SQL_INSERT)
 		{
 			if (!bIsFirst)
 			{
@@ -275,7 +275,7 @@ Buffer _sqlite3_table_::Insert(const _Table_& values)
 			{
 				bIsFirst = false;
 			}
-			sql += FieldDefine[i]->toSqlString();
+			sql += values.FieldDefine[i]->toSqlString();
 		}
 	}
 	sql += " );";
@@ -322,9 +322,9 @@ Buffer _sqlite3_table_::Modify(const _Table_& values)
 	//UPDATE 表全名 SET 列1=值1, ..., 列n=值n [WHERE 条件]
 	Buffer sql = "UPDATE " + (Buffer)*this + " SET ";
 	bool bIsFirst = true;
-	for (size_t i = 0; i < FieldDefine.size(); i++)
+	for (size_t i = 0; i < values.FieldDefine.size(); i++)
 	{
-		if (FieldDefine[i]->Condition & SQL_MODIFY)
+		if (values.FieldDefine[i]->Condition & SQL_MODIFY)
 		{
 			if (!bIsFirst)
 			{
@@ -334,15 +334,15 @@ Buffer _sqlite3_table_::Modify(const _Table_& values)
 			{
 				bIsFirst = false;
 			}
-			sql += (Buffer)*FieldDefine[i] + "=" + FieldDefine[i]->toSqlString();
+			sql += (Buffer)*values.FieldDefine[i] + "=" + values.FieldDefine[i]->toSqlString();
 		}
 	}
 
 	Buffer where = "";
 	bIsFirst = true;
-	for (size_t i = 0; i < FieldDefine.size(); i++)
+	for (size_t i = 0; i < values.FieldDefine.size(); i++)
 	{
-		if (FieldDefine[i]->Condition & SQL_CONDITION)
+		if (values.FieldDefine[i]->Condition & SQL_CONDITION)
 		{
 			if (!bIsFirst)
 			{
@@ -352,14 +352,14 @@ Buffer _sqlite3_table_::Modify(const _Table_& values)
 			{
 				bIsFirst = false;
 			}
-			where += (Buffer)*FieldDefine[i] + "=" + FieldDefine[i]->toSqlString();
+			where += (Buffer)*values.FieldDefine[i] + "=" + values.FieldDefine[i]->toSqlString();
 		}
 	}
 	if (where.size() > 0)
 	{
 		sql = sql + "WHERE " + where;
 	}
-	sql += ";";
+	sql += " ;";
 
 	TRACEI("sql = %s", (char*)sql);
 
