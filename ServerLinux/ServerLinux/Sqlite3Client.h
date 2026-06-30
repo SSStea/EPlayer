@@ -70,17 +70,6 @@ public:
 	virtual operator const Buffer() const;//获取表的全名
 };
 
-enum SqlType {
-	TYPE_NULL = 0, //空
-	TYPE_BOOL = 1, 
-	TYPE_INT = 2,
-	TYPE_DATETIME = 4,
-	TYPE_REAL = 8, //小数
-	TYPE_VARCHAR = 16, //字符
-	TYPE_TEXT = 32,
-	TYPE_BLOB = 64
-};
-
 class _sqlite3_field_
 	:public _Field_
 {
