@@ -95,7 +95,7 @@ public:
 		const Buffer& default_,
 		const Buffer& check
 	);
-	virtual ~_sqlite3_field_();
+	virtual ~_sqlite3_field_() {}
 
 	virtual Buffer Create();
 	virtual void LoadFromStr(const Buffer& str);
@@ -104,11 +104,11 @@ public:
 	virtual operator const Buffer() const;//列的全名
 
 private:
-	union {
+	struct {
 		bool	Bool;
 		int		Integer;
 		double	Decimal;
-		Buffer*	String;
+		Buffer	String;
 	}Value;
 	SqlType nType;
 

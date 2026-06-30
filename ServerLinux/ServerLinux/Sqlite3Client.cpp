@@ -438,41 +438,12 @@ _sqlite3_field_::_sqlite3_field_(
 )
 {
 	nType = ntype;
-	switch (ntype)
-	{
-	case TYPE_VARCHAR:
-	case TYPE_TEXT:
-	case TYPE_BLOB:
-		Value.String = new Buffer();
-		break;
-	default:
-		break;
-	}
 	Name = name;
 	Attr = attr;
 	Type = type;
 	Size = size;
 	Default = default_;
 	Check = check;
-}
-
-_sqlite3_field_::~_sqlite3_field_()
-{
-	switch (nType)
-	{
-	case TYPE_VARCHAR:
-	case TYPE_TEXT:
-	case TYPE_BLOB:
-		if (Value.String)
-		{
-			Buffer* p = Value.String;
-			Value.String = NULL;
-			delete p;
-		}
-		break;
-	default:
-		break;
-	}
 }
 
 Buffer _sqlite3_field_::Create()
@@ -523,10 +494,10 @@ void _sqlite3_field_::LoadFromStr(const Buffer& str)
 		break;
 	case TYPE_VARCHAR:
 	case TYPE_TEXT:
-		*Value.String = str;
+		Value.String = str;
 		break;
 	case TYPE_BLOB:
-		*Value.String = Str2Hex(str);
+		Value.String = Str2Hex(str);
 		break;
 	default:
 		char buf[128] = "";
@@ -559,7 +530,7 @@ Buffer _sqlite3_field_::toEqualExp() const
 	case TYPE_VARCHAR:
 	case TYPE_TEXT:
 	case TYPE_BLOB:
-		sql += '"' + *Value.String + "\" ";
+		sql += '"' + Value.String + "\" ";
 		break;
 	default:
 		char buf[128] = "";
@@ -594,7 +565,7 @@ Buffer _sqlite3_field_::toSqlString() const
 	case TYPE_VARCHAR:
 	case TYPE_TEXT:
 	case TYPE_BLOB:
-		sql += '"' + *Value.String + "\" ";
+		sql += '"' + Value.String + "\" ";
 		break;
 	default:
 		char buf[128] = "";
