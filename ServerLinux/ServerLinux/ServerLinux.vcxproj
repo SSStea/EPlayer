@@ -75,6 +75,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="Crypto.cpp" />
     <ClCompile Include="DatabaseHelper.cpp" />
     <ClCompile Include="Epoll.cpp" />
     <ClCompile Include="EdoyunPlayerServer.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Crypto.h" />
     <ClInclude Include="DatabaseHelper.h" />
     <ClInclude Include="Epoll.h" />
     <ClInclude Include="EdoyunPlayerServer.h" />
@@ -167,7 +169,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -177,7 +179,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -187,7 +189,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
@@ -197,13 +199,13 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -212,7 +214,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -221,7 +223,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -230,7 +232,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <Link>
       <AdditionalOptions>-pthread %(AdditionalOptions)</AdditionalOptions>
-      <LibraryDependencies>dl;mysqlclient</LibraryDependencies>
+      <LibraryDependencies>dl;mysqlclient;crypto;</LibraryDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
