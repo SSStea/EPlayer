@@ -31,9 +31,19 @@ Buffer::Buffer(const char* begin, const char* end) : std::string()
 	}
 }
 
+Buffer::operator void* ()
+{
+	return (void*)c_str();
+}
+
 Buffer::operator char* ()
 {
 	return (char*)c_str();
+}
+
+Buffer::operator unsigned char* ()
+{
+	return (unsigned char*)c_str();
 }
 
 Buffer::operator char* () const
@@ -42,6 +52,11 @@ Buffer::operator char* () const
 }
 
 Buffer::operator const char* () const
+{
+	return c_str();
+}
+
+Buffer::operator const void* () const
 {
 	return c_str();
 }

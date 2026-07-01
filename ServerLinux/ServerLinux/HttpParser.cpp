@@ -263,7 +263,7 @@ int UrlParser::Parser()
                 {
                     return -5;
                 }
-                m_mapValues[Buffer(key_value, t)] = Buffer(t + 1, key_value + key_value.size());
+                m_mapValues[Buffer(key_value, t)] = Buffer(t + 1, (char*)key_value + key_value.size());
                 pos = target + 1;
             }
         } while (target != NULL);
