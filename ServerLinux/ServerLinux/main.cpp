@@ -449,11 +449,21 @@ int mysql_test()
 	return 0;
 }
 
+#include "Crypto.h"
+int crypto_test()
+{
+    Buffer data = "abcdef";
+    data = CCrypto::MD5(data);
+    printf("%s\n", (char*)data);
+    return 0;
+}
+
+
 int main()
 {
     /*int nRet = http_test();*/
 
-    int nRet = mysql_test();
+    int nRet = crypto_test();
 
     printf("main: nRet = %d\n", nRet);
 
