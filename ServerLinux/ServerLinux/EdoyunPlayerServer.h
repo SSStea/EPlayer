@@ -1,9 +1,13 @@
-#pragma once
+﻿#pragma once
 #include "Server.h"
 #include <map>
 #include "Logger.h"
 #include "Function.h"
+#include "HttpParser.h"
+#include "Crypto.h"
 #include "MySqlClient.h"
+#include "jsoncpp/json.h"
+
 DECLARE_TABLE_CLASS(edoyunLogin_user_mysql, _mysql_table_)
 DECLARE_MYSQL_FIELD(TYPE_INT, user_id, NOT_NULL | PRIMARY_KEY | AUTOINCREMENT, "INTEGER", "", "", "")
 DECLARE_MYSQL_FIELD(TYPE_VARCHAR, user_qq, NOT_NULL, "VARCHAR", "(15)", "", "")  //QQ号
@@ -63,5 +67,7 @@ private:
 
 	int Connected(CSocketBase* pClient);
 	int Received(CSocketBase* pClient, const Buffer& data);
+	int HttpParser(const Buffer& data);
+	Buffer MakeResponse(int nRet);
 };
 
