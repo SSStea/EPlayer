@@ -39,6 +39,7 @@ enum
 };
 
 enum {
+	NONE = 0,
 	NOT_NULL = 1,
 	DEFAULT = 2,
 	UNIQUE = 4,
