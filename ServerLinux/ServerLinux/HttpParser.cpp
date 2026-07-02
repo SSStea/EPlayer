@@ -306,3 +306,8 @@ void UrlParser::SetUrl(const Buffer& url)
     m_port = 80;
     m_mapValues.clear();
 }
+
+Buffer UrlParser::RetUrlInfo() const
+{
+    return m_urlInfo;
+}

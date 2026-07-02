@@ -64,6 +64,7 @@ public:
 	//默认返回80
 	int Port() const;
 	void SetUrl(const Buffer& url);
+	Buffer RetUrlInfo() const;
 
 private:
 	Buffer m_url;
