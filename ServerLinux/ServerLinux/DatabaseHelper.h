@@ -109,7 +109,7 @@ public:
 	virtual Buffer Insert(const _Table_& values) = 0;//增删改查
 	virtual Buffer Delete(const _Table_& values) = 0;
 	virtual Buffer Modify(const _Table_& values) = 0;
-	virtual Buffer Query() = 0;
+	virtual Buffer Query(const Buffer& condition = "") = 0;
 
 	virtual PTable Copy() const = 0;//创建一个基于表的对象，
 	//方便数据库客户端基类带结果的执行函数使用，针对不同种类的数据库创建不同的对象

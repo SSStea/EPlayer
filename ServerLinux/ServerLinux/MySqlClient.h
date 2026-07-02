@@ -57,7 +57,7 @@ public:
 	virtual Buffer Insert(const _Table_& values);//增删改查
 	virtual Buffer Delete(const _Table_& values);
 	virtual Buffer Modify(const _Table_& values);
-	virtual Buffer Query();
+	virtual Buffer Query(const Buffer& condition = "");
 
 	virtual PTable Copy() const;//创建一个基于表的对象，
 	//方便数据库客户端基类带结果的执行函数使用，针对不同种类的数据库创建不同的对象

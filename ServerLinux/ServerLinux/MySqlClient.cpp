@@ -31,7 +31,7 @@ int CMySqlClient::Connect(const KeyValue& args)
 	);
 	if (ret == NULL && mysql_errno(&m_db) != 0)
 	{
-		printf("%d\n", mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		mysql_close(&m_db);
 		bzero(&m_db, sizeof(MYSQL));
 		return -3;
@@ -53,6 +53,7 @@ int CMySqlClient::Exec(const Buffer& sql)
 	if (nRet != 0)
 	{
 		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		return -2;
 	}
 
@@ -70,6 +71,7 @@ int CMySqlClient::Exec(const Buffer& sql, Result& result, const _Table_& table)
 	if (nRet != 0)
 	{
 		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		return -2;
 	}
 
@@ -103,6 +105,7 @@ int CMySqlClient::StartTransaction()
 	if (nRet != 0)
 	{
 		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		return -2;
 	}
 
@@ -120,6 +123,7 @@ int CMySqlClient::CommitTransaction()
 	if (nRet != 0)
 	{
 		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		return -2;
 	}
 
@@ -137,6 +141,7 @@ int CMySqlClient::RollbackTransaction()
 	if (nRet != 0)
 	{
 		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("errno:%d msg = %s", mysql_errno(&m_db), mysql_error(&m_db));
 		return -2;
 	}
 
@@ -340,7 +345,7 @@ Buffer _mysql_table_::Modify(const _Table_& values)
 	return sql;
 }
 
-Buffer _mysql_table_::Query()
+Buffer _mysql_table_::Query(const Buffer& condition)
 {
 	//SELECT 列名1,列名2,...,列名n FROM 表全名;
 	Buffer sql = "SELECT ";
@@ -354,7 +359,13 @@ Buffer _mysql_table_::Query()
 		sql = sql + '`' + FieldDefine[i]->Name + "` ";
 	}
 
-	sql = sql + " FROM " + (Buffer)*this + ";";
+	sql = sql + " FROM " + (Buffer)*this;
+	if (condition.size() > 0)
+	{
+		sql += " WHERE " + condition;
+	}
+	sql += ";";
+
 	printf("sql = %s\n", (char*)sql);
 
 	return sql;
