@@ -3,6 +3,7 @@
 #include <map>
 #include "Logger.h"
 #include "Function.h"
+#include "MySqlClient.h"
 DECLARE_TABLE_CLASS(edoyunLogin_user_mysql, _mysql_table_)
 DECLARE_MYSQL_FIELD(TYPE_INT, user_id, NOT_NULL | PRIMARY_KEY | AUTOINCREMENT, "INTEGER", "", "", "")
 DECLARE_MYSQL_FIELD(TYPE_VARCHAR, user_qq, NOT_NULL, "VARCHAR", "(15)", "", "")  //QQ号
@@ -56,6 +57,7 @@ private:
 	CThreadPool m_pool;
 	std::map<int, CSocketBase*> m_mapClients;
 	unsigned m_nCount;
+	CDatabaseClient* m_pDb;
 
 	int ThreadFunc();
 

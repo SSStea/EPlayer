@@ -7,6 +7,14 @@ CEdoyunPlayerServer::CEdoyunPlayerServer(unsigned count) : CBusiness()
 
 CEdoyunPlayerServer::~CEdoyunPlayerServer()
 {
+	if (m_pDb)
+	{
+		CDatabaseClient* pDb = m_pDb;
+		m_pDb = NULL;
+		pDb->Close();
+		delete pDb;
+	}
+
 	m_epoll.Close();
 	m_pool.Close();
 	for (auto& client : m_mapClients)
@@ -27,23 +35,42 @@ int CEdoyunPlayerServer::BusinessProc(CProcess* proc)
 	int nSock = 0;
 	sockaddr_in addr;
 
-	//_1 _2是占位符，告诉模板函数可变参数有多少个我还不清楚，但是我先把位置占上
-	nRet = setConnectedCallback(&CEdoyunPlayerServer::Connected, this, _1);
-	RET_ERR(nRet, -1);
-
-	nRet = recvCallback(&CEdoyunPlayerServer::Received, this, _1, _2);
+	m_pDb = new CMySqlClient();
+	if (m_pDb == NULL)
+	{
+		TRACEE("No More Memory");
+		return -1;
+	}
+	KeyValue args;
+	args["host"] = "172.16.208.100";
+	args["user"] = "wang";
+	args["password"] = "123456";
+	args["port"] = "3306";
+	args["db"] = "edoyun";
+	nRet = m_pDb->Connect(args);
 	RET_ERR(nRet, -2);
 
-	nRet = m_epoll.Creat(m_nCount);
+	edoyunLogin_user_mysql user;
+	nRet = m_pDb->Exec(user.Create());
 	RET_ERR(nRet, -3);
 
-	nRet = m_pool.Start(m_nCount);
+	//_1 _2是占位符，告诉模板函数可变参数有多少个我还不清楚，但是我先把位置占上
+	nRet = setConnectedCallback(&CEdoyunPlayerServer::Connected, this, _1);
 	RET_ERR(nRet, -4);
+
+	nRet = recvCallback(&CEdoyunPlayerServer::Received, this, _1, _2);
+	RET_ERR(nRet, -5);
+
+	nRet = m_epoll.Creat(m_nCount);
+	RET_ERR(nRet, -6);
+
+	nRet = m_pool.Start(m_nCount);
+	RET_ERR(nRet, -7);
 
 	for (unsigned i = 0; i < m_nCount; i++)
 	{
 		nRet = m_pool.AddTask(&CEdoyunPlayerServer::ThreadFunc, this);
-		RET_ERR(nRet, -5);
+		RET_ERR(nRet, -8);
 	}
 
 	while (m_epoll != -1)
