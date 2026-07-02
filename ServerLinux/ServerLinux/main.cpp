@@ -182,7 +182,7 @@ int old_test()
     return 0;
 }
 
-int server_test()
+int Main()
 {
 	int nRet = 0;
 	CProcess procLog;
@@ -463,7 +463,7 @@ int main()
 {
     /*int nRet = http_test();*/
 
-    int nRet = crypto_test();
+    int nRet = Main();
 
     printf("main: nRet = %d\n", nRet);
 
