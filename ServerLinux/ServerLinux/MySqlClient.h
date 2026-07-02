@@ -91,13 +91,6 @@ public:
 	virtual operator const Buffer() const;//列的全名
 
 private:
-	struct {
-		bool	Bool;
-		int		Integer;
-		double	Decimal;
-		Buffer	String;
-	}Value;
-	SqlType nType;
 
 	Buffer Str2Hex(const Buffer& data) const;
 };

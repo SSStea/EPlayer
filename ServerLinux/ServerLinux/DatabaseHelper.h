@@ -82,6 +82,14 @@ public:
 	unsigned Attr;
 	Buffer Default;
 	Buffer Check;
+
+	struct {
+		bool	Bool;
+		int		Integer;
+		double	Decimal;
+		Buffer	String;
+	}Value;
+	SqlType nType;
 };
 
 using PField = std::shared_ptr<_Field_>;
